@@ -23,6 +23,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
     re_path(r"^", include("files.urls")),
+    re_path(r"^", include("clip_editor.urls")),  # clip-manager fork: editor API
     re_path(r"^", include("users.urls")),
     re_path(r"^accounts/", include("allauth.urls")),
     re_path(r"^lti/", include("lti.urls")),

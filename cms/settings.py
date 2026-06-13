@@ -303,6 +303,7 @@ INSTALLED_APPS = [
     "files.apps.FilesConfig",
     "users.apps.UsersConfig",
     "actions.apps.ActionsConfig",
+    "clip_editor.apps.ClipEditorConfig",  # clip-manager fork: non-destructive editor
     "rbac.apps.RbacConfig",
     "identity_providers.apps.IdentityProvidersConfig",
     "lti.apps.LtiConfig",

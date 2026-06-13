@@ -1,3 +1,21 @@
+# clip-manager
+
+> **A fork of [MediaCMS](https://github.com/mediacms-io/mediacms)** that adds a
+> non-destructive, in-browser **clip editor** (cut / assemble / — roadmap —
+> overlays, text, transitions) on top of MediaCMS's media pipeline. Deployed in
+> the JabLab homelab as the GameDVR portal at `gamedvr.jabflix.net`.
+>
+> - **What's new vs upstream:** the `clip_editor/` Django app + editor API. See
+>   **[EDITOR.md](EDITOR.md)** for architecture and roadmap.
+> - **Image:** built to `ghcr.io/justinbernabe/clip-manager` by
+>   `.github/workflows/build-image.yml`.
+> - **Upstream sync:** `git fetch upstream && git merge upstream/main`.
+> - **License:** AGPL-3.0 (inherited from MediaCMS). Modified source is this repo.
+>
+> Everything below is upstream MediaCMS's README.
+
+---
+
 # MediaCMS
 
 [![GitHub license](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://raw.githubusercontent.com/mediacms-io/mediacms/main/LICENSE.txt)
