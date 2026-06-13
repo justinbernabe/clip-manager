@@ -90,6 +90,20 @@ function EditMediaButton(props) {
     );
 }
 
+// clip-manager: launch the Twitch-style trim editor (/edit_video) for a video.
+function TrimVideoButton(props) {
+    return (
+        <a
+            href={'/edit_video?m=' + props.token}
+            rel="nofollow"
+            title={translateString('Trim / make a clip')}
+            className="edit-media-icon trim-video-icon"
+        >
+            <i className="material-icons">content_cut</i>
+        </a>
+    );
+}
+
 export default function ViewerInfoContent(props) {
     const { userCan } = useUser();
 
@@ -247,6 +261,10 @@ export default function ViewerInfoContent(props) {
                         <div className="media-author-actions">
                             {userCan.editMedia ? (
                                 <EditMediaButton link={MediaPageStore.get('media-data').edit_url} />
+                            ) : null}
+
+                            {userCan.editMedia && 'video' === MediaPageStore.get('media-data').media_type ? (
+                                <TrimVideoButton token={MediaPageStore.get('media-data').friendly_token} />
                             ) : null}
 
                             {userCan.deleteMedia ? (

@@ -1048,6 +1048,19 @@ def video_trim_task(self, trim_request_id):
             trim_request.media = new_media
             trim_request.save(update_fields=["media"])
 
+            # clip-manager: tag exported trims as "clip" and inherit the source's
+            # game category, so trimmed highlights are easy to find/group.
+            try:
+                from .models import Tag
+
+                clip_tag, _ = Tag.objects.get_or_create(title="clip", defaults={"user": new_media.user})
+                new_media.tags.add(clip_tag)
+                source_cats = list(original_media.category.all())
+                if source_cats:
+                    new_media.category.add(*source_cats)
+            except Exception as exc:  # noqa: BLE001 - never fail a render over tagging
+                logger.info(f"clip auto-tag failed for {new_media.friendly_token}: {exc}")
+
         # processing timestamps differently on encodings and original file, in case we do accuracy trimming (currently not)
         # these have different I-frames and the cut is made based on the I-frames
 
