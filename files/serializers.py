@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from rest_framework import serializers
 
@@ -15,6 +17,16 @@ class MediaSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
     author_profile = serializers.SerializerMethodField()
     author_thumbnail = serializers.SerializerMethodField()
+    codec = serializers.SerializerMethodField()
+
+    def get_codec(self, obj):
+        # Surface the video codec (e.g. h264 / hevc / av1) from the stored
+        # ffprobe media_info, for the card meta line. clip-manager addition.
+        try:
+            info = json.loads(obj.media_info or "{}")
+            return ((info.get("video_info") or {}).get("codec_name") or "").lower()
+        except (ValueError, TypeError):
+            return ""
 
     def get_url(self, obj):
         return self.context["request"].build_absolute_uri(obj.get_absolute_url())
@@ -65,6 +77,7 @@ class MediaSerializer(serializers.ModelSerializer):
             "state",
             "duration",
             "thumbnail_url",
+            "codec",
             "is_reviewed",
             "preview_url",
             "author_name",

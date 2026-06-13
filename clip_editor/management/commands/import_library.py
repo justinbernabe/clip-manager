@@ -21,8 +21,11 @@ import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from files.models import Media
+
+from ..dates import parse_capture_date
 
 VIDEO_EXTS = {".mp4", ".mov", ".mkv", ".webm", ".m4v", ".avi", ".flv", ".ts"}
 
@@ -85,6 +88,11 @@ class Command(BaseCommand):
                     media = Media(user=owner, title=os.path.splitext(fn)[0])
                     media.media_file.name = name  # no .save() on the field => no copy
                     media.save()  # post_save -> media_init -> thumbnail+sprite, serves original
+                    # Post date = capture time from the filename, not import time.
+                    dt = parse_capture_date(fn)
+                    if dt:
+                        aware = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
+                        Media.objects.filter(pk=media.pk).update(add_date=aware, edit_date=aware)
                     registered += 1
                     self.stdout.write(f"[{registered}] {name} -> {media.friendly_token}")
 

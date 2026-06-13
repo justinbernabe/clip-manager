@@ -153,6 +153,7 @@ export function listItemProps(props, item, index) {
 
   const stats = {
     views: item.views || null,
+    codec: item.codec || null,
   };
 
   const hide = {
@@ -300,6 +301,7 @@ export function ListItem(props) {
 
     args.author_name = props.author.name;
     args.author_link = props.author.url;
+    args.codec = props.stats.codec;
 
     args.hideDate = props.hide.date;
     args.hideViews = props.hide.views;

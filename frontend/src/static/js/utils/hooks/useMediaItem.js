@@ -71,12 +71,19 @@ export function useMediaItem(props) {
     return <MediaItemMetaDate time={props.publish_date} dateTime={publishDateTime} text={publishDate} />;
   }
 
+  // clip-manager: show the source video codec (H264 / HEVC / AV1) on the card,
+  // bullet-separated to match the views • date meta style.
+  function codecComponent() {
+    return props.codec ? <span className="item-codec">{' • ' + props.codec.toUpperCase()}</span> : null;
+  }
+
   function metaComponents() {
     return props.hideAllMeta ? null : (
       <span className="item-meta">
         {authorComponent()}
         {viewsComponent()}
         {dateComponent()}
+        {codecComponent()}
       </span>
     );
   }
