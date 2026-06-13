@@ -61,6 +61,12 @@ def retag_to_hvc1(path):
         )
         if os.path.getsize(tmp) > 0:
             shutil.move(tmp, path)
+            # mkstemp makes 0600; nginx (www-data) must be able to read it, so
+            # make it world-readable (the gamedvr dirs are already traversable).
+            try:
+                os.chmod(path, 0o644)
+            except OSError:
+                pass
             return True
     except Exception:
         pass
