@@ -486,8 +486,10 @@ CELERY_TASK_ALWAYS_EAGER = False
 if os.environ.get("TESTING"):
     CELERY_TASK_ALWAYS_EAGER = True
 
-# if True, only show original, don't perform any action on videos
-DO_NOT_TRANSCODE_VIDEO = False
+# if True, only show original, don't perform any action on videos.
+# clip-manager: env-driven so the GameDVR portal can serve a large existing
+# library straight off the HDD (no transcode). Default unchanged (False).
+DO_NOT_TRANSCODE_VIDEO = os.environ.get("DO_NOT_TRANSCODE_VIDEO", "False") == "True"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
