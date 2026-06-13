@@ -91,10 +91,15 @@ function EditMediaButton(props) {
 }
 
 // clip-manager: launch the Twitch-style trim editor (/edit_video) for a video.
+// media-data has no friendly_token, so derive the link from edit_url (/edit?m=..).
 function TrimVideoButton(props) {
+    const link = (props.editLink || '').replace('/edit?', '/edit_video?');
+    if (!link) {
+        return null;
+    }
     return (
         <a
-            href={'/edit_video?m=' + props.token}
+            href={link}
             rel="nofollow"
             title={translateString('Trim / make a clip')}
             className="edit-media-icon trim-video-icon"
@@ -264,7 +269,7 @@ export default function ViewerInfoContent(props) {
                             ) : null}
 
                             {userCan.editMedia && 'video' === MediaPageStore.get('media-data').media_type ? (
-                                <TrimVideoButton token={MediaPageStore.get('media-data').friendly_token} />
+                                <TrimVideoButton editLink={MediaPageStore.get('media-data').edit_url} />
                             ) : null}
 
                             {userCan.deleteMedia ? (
