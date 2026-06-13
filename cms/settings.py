@@ -455,6 +455,12 @@ CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERYD_PREFETCH_MULTIPLIER = 1
 
 CELERY_BEAT_SCHEDULE = {
+    # clip-manager: ingest clips newly dropped into the gaming folder every 20 min
+    # (retag hev1->hvc1 in place + register new files with date/category).
+    "process_new_clips": {
+        "task": "process_new_clips",
+        "schedule": crontab(minute="*/20"),
+    },
     # clear expired sessions, every sunday 1.01am. By default Django has 2week
     # expire date
     "clear_sessions": {

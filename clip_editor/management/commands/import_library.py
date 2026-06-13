@@ -25,7 +25,7 @@ from django.utils import timezone
 
 from files.models import Media
 
-from ..dates import parse_capture_date
+from ...dates import parse_capture_date
 
 VIDEO_EXTS = {".mp4", ".mov", ".mkv", ".webm", ".m4v", ".avi", ".flv", ".ts"}
 

@@ -15,7 +15,7 @@ from django.utils import timezone
 
 from files.models import Media
 
-from ..dates import parse_capture_date
+from ...dates import parse_capture_date
 
 
 class Command(BaseCommand):
