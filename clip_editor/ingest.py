@@ -133,10 +133,12 @@ def has_audio(path, sample_seconds=120, silence_db=-60.0):
 
 
 def analyze_tags(path):
-    """Return the list of analysis tags for a clip: ['no-audio'], ['hdr'], etc."""
+    """Return analysis tags for a clip. Use already-normalized names — MediaCMS
+    slugifies tag titles (strips hyphens/spaces), so 'no-audio' would collide with
+    a stored 'noaudio'; use 'noaudio' directly so get_or_create matches."""
     tags = []
     if not has_audio(path):
-        tags.append("no-audio")
+        tags.append("noaudio")
     if is_hdr(path):
         tags.append("hdr")
     return tags
