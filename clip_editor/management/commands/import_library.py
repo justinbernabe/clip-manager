@@ -26,6 +26,7 @@ from django.utils import timezone
 from files.models import Media
 
 from ...dates import parse_capture_date
+from ...ingest import analyze_tags, detect_game
 
 VIDEO_EXTS = {".mp4", ".mov", ".mkv", ".webm", ".m4v", ".avi", ".flv", ".ts"}
 
@@ -93,6 +94,15 @@ class Command(BaseCommand):
                     if dt:
                         aware = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
                         Media.objects.filter(pk=media.pk).update(add_date=aware, edit_date=aware)
+                    # Game category + media-analysis tags (no-audio / hdr).
+                    from files.models import Category, Tag
+                    game = detect_game(name)
+                    if game:
+                        cat, _ = Category.objects.get_or_create(title=game, defaults={"user": owner})
+                        media.category.add(cat)
+                    for tname in analyze_tags(abs_path):
+                        tag, _ = Tag.objects.get_or_create(title=tname, defaults={"user": owner})
+                        media.tags.add(tag)
                     registered += 1
                     self.stdout.write(f"[{registered}] {name} -> {media.friendly_token}")
 

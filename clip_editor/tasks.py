@@ -15,7 +15,7 @@ from files.helpers import produce_friendly_token
 from files.models import Media
 
 from .dates import parse_capture_date
-from .ingest import VIDEO_EXTS, detect_game, retag_to_hvc1
+from .ingest import VIDEO_EXTS, analyze_tags, detect_game, retag_to_hvc1
 from .models import EditProject
 from .render import RenderError, render_edl
 
@@ -29,7 +29,7 @@ def process_new_clips():
     capture-date as the post date and a best-effort game category. Already-known
     files are skipped, so this is cheap to run on a schedule.
     """
-    from files.models import Category
+    from files.models import Category, Tag
     from users.models import User
 
     base = os.path.join(settings.MEDIA_ROOT, "gamedvr")
@@ -64,6 +64,9 @@ def process_new_clips():
             if game:
                 cat, _ = Category.objects.get_or_create(title=game, defaults={"user": owner})
                 media.category.add(cat)
+            for tname in analyze_tags(abs_path):
+                tag, _ = Tag.objects.get_or_create(title=tname, defaults={"user": owner})
+                media.tags.add(tag)
             registered += 1
 
     return {"retagged": retagged, "registered": registered}

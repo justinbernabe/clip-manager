@@ -84,3 +84,59 @@ def detect_game(path):
         if kw in low:
             return cat
     return None
+
+
+# --- media analysis: surface useful facts as tags ---------------------------
+import re as _re
+
+HDR_TRANSFERS = {"smpte2084", "arib-std-b67"}  # PQ (HDR10) and HLG
+
+
+def is_hdr(path):
+    """True if the video's colour transfer is an HDR one (PQ/HLG)."""
+    try:
+        out = subprocess.run(
+            [FFPROBE, "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=color_transfer", "-of", "csv=p=0", path],
+            capture_output=True, text=True, timeout=60,
+        ).stdout.strip().lower()
+        return out in HDR_TRANSFERS
+    except Exception:
+        return False
+
+
+def has_audio(path, sample_seconds=120, silence_db=-60.0):
+    """True if the clip has an audible audio track. False if there are no audio
+    streams, or all of them are effectively silent (digital silence ~ -91 dB)."""
+    try:
+        streams = subprocess.run(
+            [FFPROBE, "-v", "error", "-select_streams", "a",
+             "-show_entries", "stream=index", "-of", "csv=p=0", path],
+            capture_output=True, text=True, timeout=60,
+        ).stdout.strip()
+    except Exception:
+        return True  # on probe failure, don't risk a false "no-audio" tag
+    if not streams:
+        return False
+    try:
+        res = subprocess.run(
+            [FFMPEG, "-hide_banner", "-t", str(sample_seconds), "-i", path,
+             "-map", "0:a", "-af", "volumedetect", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=900,
+        )
+        m = _re.search(r"max_volume:\s*(-?\d+(?:\.\d+)?) dB", res.stderr)
+        if m:
+            return float(m.group(1)) > silence_db
+    except Exception:
+        pass
+    return True  # couldn't measure — assume audio rather than mis-tag
+
+
+def analyze_tags(path):
+    """Return the list of analysis tags for a clip: ['no-audio'], ['hdr'], etc."""
+    tags = []
+    if not has_audio(path):
+        tags.append("no-audio")
+    if is_hdr(path):
+        tags.append("hdr")
+    return tags
