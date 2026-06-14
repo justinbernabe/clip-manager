@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>JoeyDVR Tools — automations</h1>
+<p style="max-width:780px;color:var(--body-quiet-color,#666)">
+  These are the custom JoeyDVR features layered on top of MediaCMS. New clips dropped
+  in the gaming folder get all of these automatically (scheduled every 20&nbsp;min).
+  Use the buttons to (re)run one across your <b>entire</b> library — each runs in the
+  background; refresh for the result.
+</p>
+
+<table style="width:100%;max-width:980px;border-collapse:collapse">
+  <thead>
+    <tr style="text-align:left;border-bottom:2px solid #8884">
+      <th style="padding:8px">Feature</th>
+      <th style="padding:8px">What it does</th>
+      <th style="padding:8px">New clips</th>
+      <th style="padding:8px">Last full run</th>
+      <th style="padding:8px"></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    <tr style="border-bottom:1px solid #8883">
+      <td style="padding:8px"><b>{{ row.label }}</b></td>
+      <td style="padding:8px">{{ row.desc }}</td>
+      <td style="padding:8px">{% if row.on_new %}✓ auto{% else %}—{% endif %}</td>
+      <td style="padding:8px">
+        {% if row.last %}
+          <span title="{{ row.last.result }}">
+            {{ row.last.status }} · {{ row.last.started_at|date:"M j, H:i" }}
+          </span>
+        {% else %}<span style="color:#999">never</span>{% endif %}
+      </td>
+      <td style="padding:8px">
+        <form method="post" action="{% url 'admin:joeydvr_run' row.key %}">
+          {% csrf_token %}
+          <button type="submit" class="button">Run on whole library</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<p style="margin-top:20px"><a href="../">← Run history</a></p>
+{% endblock %}

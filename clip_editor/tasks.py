@@ -72,6 +72,40 @@ def process_new_clips():
     return {"retagged": retagged, "registered": registered}
 
 
+# Registry of whole-library automations surfaced on the JoeyDVR Tools admin page.
+# key == management command name; (label, description, runs_on_new_too)
+AUTOMATIONS = [
+    ("backfill_dates", "Capture dates", "Set each clip's post date from its filename.", True),
+    ("categorize_games", "Game categories", "Sort clips into per-game categories from the filename.", True),
+    ("retag_hevc", "HEVC → hvc1 retag", "Make HEVC clips playable on Safari/iOS (lossless, in place).", True),
+    ("analyze_clips", "Audio / HDR tags", "Tag clips 'noaudio' and 'hdr' from their media info.", True),
+]
+AUTOMATION_NAMES = {a[0] for a in AUTOMATIONS}
+
+
+@shared_task(name="run_automation", queue="long_tasks", soft_time_limit=60 * 60 * 3)
+def run_automation(name):
+    """Run a whole-library automation (a management command) and record the result."""
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    from .models import AutomationRun
+
+    if name not in AUTOMATION_NAMES:
+        return "unknown"
+    run = AutomationRun.objects.create(name=name, status="running")
+    out = StringIO()
+    try:
+        call_command(name, stdout=out, stderr=out)
+        run.status, run.result = "done", out.getvalue()[-3000:]
+    except Exception as exc:  # noqa: BLE001 - surface failures on the Tools page
+        run.status, run.result = "failed", (out.getvalue() + "\n" + str(exc))[-3000:]
+    run.finished_at = timezone.now()
+    run.save(update_fields=["status", "result", "finished_at"])
+    return run.status
+
+
 def _resolve_source_path(friendly_token):
     """EDL clip 'source' (a friendly_token) -> absolute path of its media file."""
 

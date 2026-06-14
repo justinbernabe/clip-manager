@@ -2,6 +2,26 @@ from django.conf import settings
 from django.db import models
 
 
+class AutomationRun(models.Model):
+    """A record of a JoeyDVR automation run (whole-library job), for the Tools page."""
+
+    name = models.CharField(max_length=64, db_index=True)
+    status = models.CharField(
+        max_length=20,
+        choices=(("running", "Running"), ("done", "Done"), ("failed", "Failed")),
+        default="running",
+    )
+    result = models.TextField(blank=True, default="")
+    started_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+    def __str__(self):
+        return f"{self.name} ({self.status})"
+
+
 class EditProject(models.Model):
     """A non-destructive edit. Holds an EDL (see EDITOR.md) against one or more
     source Media; rendering emits a brand-new Media and never touches the source.

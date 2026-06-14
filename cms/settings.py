@@ -492,6 +492,21 @@ CELERY_TASK_ALWAYS_EAGER = False
 if os.environ.get("TESTING"):
     CELERY_TASK_ALWAYS_EAGER = True
 
+# JoeyDVR: add the Tools (automations) page to the admin sidebar. Partial config;
+# jazzmin uses its defaults for everything else.
+JAZZMIN_SETTINGS = {
+    "custom_links": {
+        "clip_editor": [
+            {
+                "name": "JoeyDVR Tools",
+                "url": "admin:joeydvr_tools",
+                "icon": "fas fa-bolt",
+                "permissions": ["clip_editor.view_automationrun"],
+            },
+        ],
+    },
+}
+
 # if True, only show original, don't perform any action on videos.
 # clip-manager: env-driven so the GameDVR portal can serve a large existing
 # library straight off the HDD (no transcode). Default unchanged (False).
